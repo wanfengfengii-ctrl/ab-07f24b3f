@@ -1,0 +1,12 @@
+{
+  "name": "kharitonov-acceptance",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "verify": "node acceptance.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.49.1"
+  }
+}

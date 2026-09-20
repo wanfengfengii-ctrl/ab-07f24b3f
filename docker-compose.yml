@@ -1,0 +1,53 @@
+services:
+  api:
+    build:
+      context: ./backend
+    container_name: kharitonov-api
+    # Host-side port is configurable via .env / shell; defaults are shown.
+    ports:
+      - "${API_PORT:-8000}:8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).status == 200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  web:
+    build:
+      context: ./frontend
+    container_name: kharitonov-web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Executable browser acceptance service.
+  # Run with:  docker compose run --rm verify
+  verify:
+    build:
+      context: ./verify
+    container_name: kharitonov-verify
+    profiles: ["acceptance"]
+    environment:
+      BASE_URL: "http://web"
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    # No restart: this is a one-shot executable that exits 0/1 as the verdict.
+    restart: "no"
