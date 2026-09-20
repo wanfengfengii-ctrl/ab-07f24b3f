@@ -1,0 +1,9 @@
+{
+  "name": "kharitonov-audit-verify",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "1.48.2"
+  }
+}
